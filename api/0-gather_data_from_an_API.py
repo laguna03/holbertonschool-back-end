@@ -1,11 +1,11 @@
 #!/usr/bin/python3
-
 import json
 import requests
 import sys
 
-employee_id = sys.argv[1]
-
+'''Converts the argument passed to the script to an integer and uses it to'''
+employee_id = int(sys.argv[1])
+'''Makes a request to the JSONPlaceholder API to get the employee data'''
 employee_data = requests.get('https://jsonplaceholder.typicode.com/users/' + employee_id)
 employee_data_json = employee_data.json()
 
@@ -22,7 +22,7 @@ print("Employee " + employee_name + " is done with tasks(" +
 
 for task in todo_data_json:
       if task['completed']:
-            print('\t ' + task['title'])
+            print('\t ' + ' ' + task['title'])
 
 if __name__ == '__main__':
     pass
