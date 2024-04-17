@@ -1,50 +1,44 @@
 #!/usr/bin/python3
-import json
+"""Retrieves and displays an employee's TODO list progress"""
 import requests
 import sys
 
-"""
-Python script that, using this REST API, for a given employee ID, returns information about his/her TODO list progress.
-"""
 
-employee_id = int(sys.argv[1])
+def get_employee_todos(employee_id):
+    """Retrieves the employee's todos from the API"""
+    url = f"https://jsonplaceholder.typicode.com/todos?userId={employee_id}"
+    response = requests.get(url)
+    todos = response.json()
+    return todos
 
-"""
-The script must accept an integer as a parameter, which is the employee ID
-"""
 
-employee_data = requests.get('https://jsonplaceholder.typicode.com/users/' + employee_id)
-employee_data_json = employee_data.json()
+def display_todo_progress(employee_id):
+    """Displays the employee's TODO list progress"""
+    todos = get_employee_todos(employee_id)
+    employee_name = get_employee_name(employee_id)
+    total_tasks = len(todos)
+    done_tasks = sum(1 for task in todos if task.get("completed"))
+    print(f"Employee {employee_name} is done with tasks"
+          f"({done_tasks}/{total_tasks}):")
+    for task in todos:
+        if task.get("completed"):
+            print(f"\t {task.get('title')}")
 
-"""
-The script must display on the standard output the employee TODO list progress in this exact format:
-"""
 
-employee_name = employee_data_json['name']
+def get_employee_name(employee_id):
+    """Retrieves the employee's name from the API"""
+    url = f"https://jsonplaceholder.typicode.com/users/{employee_id}"
+    response = requests.get(url)
+    employee = response.json()
+    return f"{employee.get('name')}"
 
-"""
-First, you have to retrieve the list of tasks of the employee
-"""
 
-todo_data = requests.get('https://jsonplaceholder.typicode.com/todos?userId=' + employee_id)
-todo_data_json = todo_data.json()
-
-"""
-Then, you have to display the information
-"""
-
-total_todos = str(len(todo_data_json))
-completed_todos = str(sum(1 for task in todo_data_json if task ['completed']))
-
-print("Employee " + employee_name + " is done with tasks(" +
-      completed_todos + "/" + total_todos + "):")
-"""
-The employee name must be displayed like this: Employee EMPLOYEE_NAME is done with tasks(NUMBER_OF_DONE_TASKS/TOTAL_NUMBER_OF_TASKS):
-"""
-
-for task in todo_data_json:
-      if task['completed']:
-            print('\t ' + ' ' + task['title'])
-
-if __name__ == '__main__':
-      pass
+if __name__ == "__main__":
+    if len(sys.argv) < 2:
+        print("Usage: python3 0-gather_data_from_an_API.py <employee_id>")
+    else:
+        try:
+            employee_id = int(sys.argv[1])
+            display_todo_progress(employee_id)
+        except ValueError:
+            print("Employee ID must be an integer")
